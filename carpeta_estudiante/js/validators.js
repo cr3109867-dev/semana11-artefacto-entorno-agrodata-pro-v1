@@ -24,13 +24,18 @@ const Validators = (() => {
       if (empty(row.unidad)) issues.push({ type: 'warning', message: 'La unidad está vacía.' });
       if (empty(row.responsable)) issues.push({ type: 'warning', message: 'El responsable está vacío.' });
 
-      // TODO-ARTEFACTO-01:
-      // Completa esta regla: si la cantidad es negativa, debe agregarse un error.
-      // Pista: usa quantity < 0 y verifica que no sea NaN.
+      if (!Number.isNaN(quantity) && quantity < 0) {
+        issues.push({ type: 'error', message: 'La cantidad es negativa.' });
+      }
 
-      // TODO-ARTEFACTO-02:
-      // Completa esta regla: si el registro se repite, debe agregarse una advertencia.
-      // Pista: crea una clave con fecha + producto + responsable y usa el Set llamado seen.
+      const duplicateKey = `${String(row.fecha).trim().toLowerCase()}|${String(row.producto).trim().toLowerCase()}|${String(row.responsable).trim().toLowerCase()}`;
+      if (!empty(row.fecha) && !empty(row.producto) && !empty(row.responsable)) {
+        if (seen.has(duplicateKey)) {
+          issues.push({ type: 'warning', message: 'Registro duplicado por fecha, producto y responsable.' });
+        } else {
+          seen.add(duplicateKey);
+        }
+      }
 
       if (!Number.isNaN(quantity) && quantity === 0) {
         issues.push({ type: 'warning', message: 'La cantidad es cero; revise si es intencional.' });
